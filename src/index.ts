@@ -3,15 +3,37 @@ import {
 	createPublicClient,
 	createWalletClient,
 	getContract,
+	Address,
+	Client,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { odysseyTestnet } from "viem/chains";
 import market from "../data/abis/Market.json" with { type: "json" };
 import params from "../data/params.json" with { type: "json" };
-import { createNonceManager, jsonRpc } from 'viem/nonce'
+import { getTransactionCount } from "viem/actions";
+import { createNonceManager } from 'viem/nonce'
+
+type FunctionParameters = {
+	address: Address
+	chainId: number
+}
+
+const myJsonRpc = () => {
+	return {
+	  async get(parameters: FunctionParameters & { client: Client }) {
+		const { address, client } = parameters
+		// @ts-ignore
+		return getTransactionCount(client, {
+		  address,
+		  blockTag: 'latest',
+		})
+	  },
+	  set() {},
+	}
+  }
  
 const nonceManager = createNonceManager({
-  source: jsonRpc()
+  source: myJsonRpc()
 })
 
 if (!process.env.PRIVATE_KEY) {
@@ -35,7 +57,7 @@ const publicClient = createPublicClient({
 	transport: http(),
 });
 
-console.log("Nonce: ", await nonceManager.get({ chainId: odysseyTestnet.id, address: "0xaf9734Fc49104636E7C75CB46F62664C1A0518a1", client: publicClient}))
+console.log("Nonce: ", await nonceManager.get({ chainId: chain.id, address: "0xaf9734Fc49104636E7C75CB46F62664C1A0518a1", client: publicClient}))
 
 const reveal = async (
 	marketId: bigint,
