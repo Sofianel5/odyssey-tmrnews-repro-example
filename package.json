@@ -1,0 +1,20 @@
+{
+  "name": "odyssey-tmrnews-repro-example",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "start": "node --import ./ts-node-register.mjs src/index.ts",
+    "build": "tsc",
+    "lint": "bunx @biomejs/biome check --write src/*"
+  },
+  "dependencies": {
+    "viem": "^2.21.49"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "ts-node": "^10.9.2"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
