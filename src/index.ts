@@ -1,27 +1,25 @@
 import {
 	http,
-	type Address,
-	type Chain,
-	type WalletClient,
 	createPublicClient,
 	createWalletClient,
-	encodeAbiParameters,
 	getContract,
-	nonceManager,
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 import { odysseyTestnet } from "viem/chains";
 import market from "../data/abis/Market.json" with { type: "json" };
 import params from "../data/params.json" with { type: "json" };
+import { createNonceManager, jsonRpc } from 'viem/nonce'
+ 
+const nonceManager = createNonceManager({
+  source: jsonRpc()
+})
 
 if (!process.env.PRIVATE_KEY) {
 	throw new Error("Envionment variables not configured.");
 }
 
 const chain = odysseyTestnet;
-const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`, {
-	nonceManager,
-});
+const account = privateKeyToAccount(process.env.PRIVATE_KEY as `0x${string}`, { nonceManager });
 const walletClient = createWalletClient({
 	chain,
 	transport: http(),
@@ -36,6 +34,8 @@ const publicClient = createPublicClient({
 	chain,
 	transport: http(),
 });
+
+console.log("Nonce: ", await nonceManager.get({ chainId: odysseyTestnet.id, address: "0xaf9734Fc49104636E7C75CB46F62664C1A0518a1", client: publicClient}))
 
 const reveal = async (
 	marketId: bigint,
@@ -66,7 +66,7 @@ const reveal = async (
 
 const main = async () => {
 	await reveal(
-		6n,
+		11n,
 		params.encodedHeadlineProof as `0x${string}`,
 		params.encodedEmbeddingProof as `0x${string}`,
 	);
